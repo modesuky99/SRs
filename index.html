@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRs calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            background-color: #121212;
+            color: #e0e0e0;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease-in-out;
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+        input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: #e0e0e0;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            animation: buttonHover 1s infinite;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result, .congrats, .analysis {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .loading span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #007BFF;
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+        .loading span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        .congrats {
+            color: #4caf50;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .analysis {
+            margin-top: 20px;
+            text-align: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes buttonHover {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>  SRs calculator </h1>
+        <label for="successful-srs">Closed SRs:</label>
+        <input type="number" id="successful-srs" min="0">
+        <label for="rejected-srs">Rejected SRs:</label>
+        <input type="number" id="rejected-srs" min="0">
+        <button onclick="calculateRatio()">حساب النسبة</button>
+        <div class="loading" id="loading">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="result" id="result"></div>
+        <div class="congrats" id="congrats" style="display: none;">تهانينا! لقد وصلت إلى النسبة المطلوبة!</div>
+        <div class="analysis" id="analysis" style="display: none;"></div>
+    </div>
+
+    <footer>
+        &copy; 2024 M.Desuky
+    </footer>
+
+    <script>
+        function calculateRatio() {
+            const successfulSrs = document.getElementById('successful-srs').value;
+            const rejectedSrs = document.getElementById('rejected-srs').value;
+            const loadingElement = document.getElementById('loading');
+            const resultElement = document.getElementById('result');
+            const congratsElement = document.getElementById('congrats');
+            const analysisElement = document.getElementById('analysis');
+
+            if (successfulSrs === '' || rejectedSrs === '') {
+                alert('يرجى إدخال قيم صحيحة للـ SRs الناجحة والمرفوضة.');
+                return;
+            }
+
+            loadingElement.style.display = 'block';
+            resultElement.innerHTML = '';
+            congratsElement.style.display = 'none';
+            analysisElement.style.display = 'none';
+
+            setTimeout(() => {
+                loadingElement.style.display = 'none';
+
+                const successful = parseInt(successfulSrs, 10);
+                const rejected = parseInt(rejectedSrs, 10);
+
+                if (isNaN(successful) || isNaN(rejected)) {
+                    alert('يرجى إدخال أرقام صحيحة.');
+                    return;
+                }
+
+                const currentRatio = (rejected / (successful + rejected)) * 100;
+                const targetSuccessfulSrs = (rejected / 0.02) - successful - rejected;
+                const goalAchieved = currentRatio <= 2;
+
+                resultElement.innerHTML = `النسبة الحالية: ${currentRatio.toFixed(2)}%<br>`;
+                resultElement.innerHTML += `الـ SRs الناجحة المطلوبة للوصول إلى النسبة المستهدفة: ${Math.max(0, Math.round(targetSuccessfulSrs))}<br>`;
+
+                if (goalAchieved) {
+                    congratsElement.style.display = 'block';
+                }
+
+                analysisElement.innerHTML = `
+                    <p>تحليل البيانات:</p>
+                    <p>عدد SRs الناجحة: ${successful}</p>
+                    <p>عدد SRs المرفوضة: ${rejected}</p>
+                    <p>النسبة الحالية: ${currentRatio.toFixed(2)}%</p>
+                `;
+                analysisElement.style.display = 'block';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
